@@ -8,6 +8,7 @@ class Linear:
     def __init__(self, X, Y, lr=0.005, num_iter=1000):
         self.X = X
         self.Y = Y
+        self.standardize()
         self.n = len(X)
         self.lr = lr
         self.num_iter = num_iter
@@ -17,6 +18,10 @@ class Linear:
     def hypothesis(self, x):
         return self.theta0 + (self.theta1 * x)
 
+    def standardize(self):
+        self.X = self.X - np.mean(self.X) 
+        self.X = self.X / np.std(self.X)
+        
     def calculate_coeff(self):
         numerator = 0
         denominator = 0
@@ -81,10 +86,7 @@ class Linear:
                                                               
 
 X, Y = make_regression(n_samples=100, n_features=1, noise=0.4, bias=50)
-
 linear = Linear(X, Y)
-linear.train()
-print(linear.theta0)
-print(linear.theta1)
+
 
 
