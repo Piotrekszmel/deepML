@@ -4,11 +4,11 @@ import pandas as pd
 from math import sqrt
 from sklearn.datasets import make_regression
 
+
 class Linear:
     def __init__(self, X, Y, lr=0.005, num_iter=1000):
-        self.X = X
-        self.Y = Y
-        self.standardize()
+        self.X = self.standardize(X)
+        self.Y = self.standardize(Y)
         self.n = len(X)
         self.lr = lr
         self.num_iter = num_iter
@@ -18,9 +18,10 @@ class Linear:
     def hypothesis(self, x):
         return self.theta0 + (self.theta1 * x)
 
-    def standardize(self):
-        self.X = self.X - np.mean(self.X) 
-        self.X = self.X / np.std(self.X)
+    def standardize(self, X):
+        X = X - np.mean(X) 
+        X = X / np.std(X)
+        return X
         
     def calculate_coeff(self):
         numerator = 0
@@ -62,6 +63,12 @@ class Linear:
         self.theta0 = self.theta0 - (self.lr * dtheta0)
         self.theta1 = self.theta1 - (self.lr * dtheta1)
 
+    def predict(self, X_test):
+        predictions = []
+        for x in X_test:
+            predictions.append(self.hypothesis(x))
+        return predictions
+
     def plotLine(self):
         max_x = np.max(self.X) + np.max(self.X) * 0.2
         min_x = np.min(self.X) - np.min(self.X) * 0.2
@@ -79,14 +86,29 @@ class Linear:
 
     def train(self):
         for i in range(self.num_iter):
-            if i % 100 == 0:
-                self.plotLine()
-            
             self.updateParameters()
-                                                              
+        self.plotLine()                                                  
 
+
+
+"""
 X, Y = make_regression(n_samples=100, n_features=1, noise=0.4, bias=50)
+X = [1,2,3,4,5]
+Y = [3,4,5,6,7]
 linear = Linear(X, Y)
+linear.train()
+
+X_test = [6,7,8,9]
+X_test = linear.standardize(X_test)
+Y_test = [8,9,10,11]
+Y_test = linear.standardize(Y_test)
+
+predictions = linear.predict(X_test)
+print("Actual: ", Y_test)
+print("Predictions: ", predictions)
+
+print(linear.rmse_metric(Y_test, predictions))
+"""
 
 
 
