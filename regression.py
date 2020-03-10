@@ -6,11 +6,13 @@ from sklearn.datasets import make_regression
 
 
 class Linear:
-    def __init__(self, X, Y, lr=0.005, num_iter=1000):
-        self.X = self.standardize(X)
-        self.Y = self.standardize(Y)
+    def __init__(self, X, Y, scale=0, lr=0.005, verbose=0, num_iter=1000):
+        self.X = self.standardize(X) if scale == 1 else X
+        self.Y = Y
+        self.scale = scale
         self.n = len(X)
         self.lr = lr
+        self.verbose = verbose
         self.num_iter = num_iter
         self.theta0 = np.random.rand()
         self.theta1 = np.random.rand()
@@ -64,6 +66,8 @@ class Linear:
         self.theta1 = self.theta1 - (self.lr * dtheta1)
 
     def predict(self, X_test):
+        if self.scale == 1:
+            X_test = self.standardize(X_test)
         predictions = []
         for x in X_test:
             predictions.append(self.hypothesis(x))
@@ -87,28 +91,42 @@ class Linear:
     def train(self):
         for i in range(self.num_iter):
             self.updateParameters()
-        self.plotLine()                                                  
+        if self.verbose == 1:
+            self.plotLine()                                                  
 
 
 
-"""
-X, Y = make_regression(n_samples=100, n_features=1, noise=0.4, bias=50)
+
+#X, Y = make_regression(n_samples=100, n_features=1, noise=0.4, bias=50)
 X = [1,2,3,4,5]
 Y = [3,4,5,6,7]
-linear = Linear(X, Y)
+linear = Linear(X, Y, scale=1, verbose=1, num_iter=1000)
 linear.train()
 
-X_test = [6,7,8,9]
-X_test = linear.standardize(X_test)
+"""
+X_test = [6,700, 8,9000]
 Y_test = [8,9,10,11]
-Y_test = linear.standardize(Y_test)
-
 predictions = linear.predict(X_test)
-print("Actual: ", Y_test)
-print("Predictions: ", predictions)
 
 print(linear.rmse_metric(Y_test, predictions))
+
+linear = Linear(X, Y, scale=1)
+linear.train()
+
+X_test = [6,700,8,9000]
+Y_test = [8,9,10,11]
+
+
+predictions = linear.predict(X_test)
+print(linear.rmse_metric(Y_test, predictions))
+
+
+
+print("Actual: ", Y_test)
+print("Predictions: ", predictions)
 """
+
+
 
 
 
