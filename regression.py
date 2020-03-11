@@ -101,7 +101,14 @@ class Linear:
 
 class MultipleLinear:
     def __init__(self, X, y):
-        X = np
+        self.X = X
+        self.y = y
+        self.m = X[0].shape
+        self.n = X[1].shape
+        self.theta = np.random.randn(X.shape[1])
+    
+    def hypothesis(self):
+        return self.theta[0] + np.matmul(self.X, self.theta[1:])
 
 
 
