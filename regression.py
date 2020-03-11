@@ -6,11 +6,11 @@ from sklearn.datasets import make_regression
 
 
 class Linear:
-    def __init__(self, X, Y, scale=0, lr=0.005, verbose=0, num_iter=1000):
+    def __init__(self, X, y, scale=0, lr=0.005, verbose=0, num_iter=5000):
         self.X = self.standardize(X) if scale == 1 else X
-        self.Y = Y
+        self.y = y
         self.scale = scale
-        self.n = len(X)
+        self.n = len(y)
         self.lr = lr
         self.verbose = verbose
         self.num_iter = num_iter
@@ -28,11 +28,11 @@ class Linear:
     def calculate_coeff(self):
         numerator = 0
         denominator = 0
-        for x, y in zip(self.X, self.Y):
-            numerator += (x - self.X_mean) * (y - self.Y_mean)
-            denominator += (x - self.Y_mean) ** 2
+        for x, y in zip(self.X, self.y):
+            numerator += (x - self.X_mean) * (y - self.y_mean)
+            denominator += (x - self.y_mean) ** 2
         self.theta1 = numerator / denominator
-        self.theta0 = self.Y_mean - (self.theta1 * self.X_mean)
+        self.theta0 = self.y_mean - (self.theta1 * self.X_mean)
     
     def rmse_metric(self, actual, predicted):
         sum_error = 0.0
@@ -43,15 +43,15 @@ class Linear:
         return sqrt(mean_error)
 
     def cost(self):
-        costValue = 0
-        for xi, yi in zip(self.X, self.Y):
-            costValue += 0.5 * ((self.hypothesis(xi) - yi)**2)
-        return costValue
+        J = 0
+        for xi, yi in zip(self.X, self.y):
+            J += ((self.hypothesis(xi) - yi)**2) / (2 * self.n)
+        return J
     
     def derivatives(self):
         dtheta0 = 0
         dtheta1 = 0
-        for xi, yi in zip(self.X, self.Y):
+        for xi, yi in zip(self.X, self.y):
             dtheta0 += self.hypothesis(xi) - yi
             dtheta1 += (self.hypothesis(xi) - yi) * xi
 
@@ -73,35 +73,45 @@ class Linear:
             predictions.append(self.hypothesis(x))
         return predictions
 
-    def plotLine(self):
-        max_x = np.max(self.X) + np.max(self.X) * 0.2
-        min_x = np.min(self.X) - np.min(self.X) * 0.2
-        max_y = np.max(self.Y) + np.max(self.Y) * 0.2
-        min_y = np.min(self.Y) - np.min(self.Y) * 0.2
+    def plotLine(self, X, y, theta0, theta1):
+        max_x = np.max(X) + np.max(X) * 0.2
+        min_x = np.min(X) - np.min(X) * 0.2
+        max_y = np.max(y) + np.max(y) * 0.2
+        min_y = np.min(y) - np.min(y) * 0.2
 
         xplot = np.linspace(min_x, max_x, 1000)
-        yplot = self.theta0 + self.theta1 * xplot
+        yplot = theta0 + theta1 * xplot
 
         plt.plot(xplot, yplot, color='#ff0000', label='Regression Line')
 
-        plt.scatter(self.X, self.Y)
+        plt.scatter(X, y)
         plt.axis([min_x * 1.2, max_x * 1.2, min_y * 1.2, max_y * 1.2])
         plt.show()
 
     def train(self):
+        cost_history = [0] * self.num_iter
         for i in range(self.num_iter):
             self.updateParameters()
+            cost_history[i] = self.cost()
         if self.verbose == 1:
-            self.plotLine()                                                  
+            self.plotLine(self.X, self.y, self.theta0, self.theta1)                                                  
+
+        return cost_history
+
+
+class MultipleLinear:
+    def __init__(self, X, y):
+        X = np
 
 
 
 
 #X, Y = make_regression(n_samples=100, n_features=1, noise=0.4, bias=50)
 X = [1,2,3,4,5]
-Y = [3,4,5,6,7]
-linear = Linear(X, Y, scale=1, verbose=1, num_iter=1000)
-linear.train()
+y = [3,4,5,6,7]
+linear = Linear(X, y, scale=0, verbose=1, num_iter=5000)
+cost = linear.train()
+
 
 """
 X_test = [6,700, 8,9000]
