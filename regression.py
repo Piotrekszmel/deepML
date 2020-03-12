@@ -6,14 +6,13 @@ from sklearn.datasets import make_regression
 
 
 class Linear:
-    def __init__(self, X, y, scale=0, lr=0.005, verbose=0, num_iter=5000):
+    def __init__(self, X, y, scale=0, lr=0.005, verbose=0):
         self.X = self.standardize(X) if scale == 1 else X
         self.y = y
         self.scale = scale
         self.n = len(y)
         self.lr = lr
         self.verbose = verbose
-        self.num_iter = num_iter
         self.theta0 = np.random.rand()
         self.theta1 = np.random.rand()
     
@@ -88,9 +87,12 @@ class Linear:
         plt.axis([min_x * 1.2, max_x * 1.2, min_y * 1.2, max_y * 1.2])
         plt.show()
 
-    def train(self):
-        cost_history = [0] * self.num_iter
-        for i in range(self.num_iter):
+    def train(self, num_iter):
+        cost_history = [0] * num_iter
+        for i in range(num_iter):
+            print(self.theta0)
+            print(self.theta1)
+            print()
             self.updateParameters()
             cost_history[i] = self.cost()
         if self.verbose == 1:
@@ -100,27 +102,55 @@ class Linear:
 
 
 class MultipleLinear:
-    def __init__(self, X, y):
+    def __init__(self, X, y, lr):
+        X = np.array(X)
         self.X = X
         self.y = y
-        self.m = X[0].shape
-        self.n = X[1].shape
-        self.theta = np.random.randn(X.shape[1])
+        self.m = X[0].shape if X.ndim >= 2 else 1
+        self.n = X[1].shape if X.ndim >= 2 else 1
+        self.lr = lr
+        self.theta = np.random.randn(X.shape[1] + 1) if X.ndim >= 2 else np.random.randn(2)
     
-    def hypothesis(self):
-        return self.theta[0] + np.matmul(self.X, self.theta[1:])
+    def hypothesis(self, X):
+        #print("MULTI: ", self.theta)
 
+        return self.theta[0] + np.matmul(X, self.theta[1:])
 
+    def cost(self):
+        h = self.hypothesis(self.X)
+        self.J = (1 / (2 * self.m)) * np.sum((h - self.y)**2)
+        return self.J
+    
+    def train(self, num_iter=1000, lr=0.005):
+        self.cost_history = []
+        self.theta_history = []
+        for i in range(num_iter):
+            h = self.hypothesis(self.X)
+            self.cost_history.append(self.cost())
+            self.theta_history.append(self.theta)
+            self.theta = self.theta - (self.lr / self.m) * np.sum((self.hypothesis(self.X) - self.y) * X, axis=0)
+        
+        return self.theta, self.cost_history, self.theta_history 
 
+    def predict(self, X_test, Y_test):
+        self.Y_hat = self.hypothesis(X_test)
+        return self.Y_hat
+    
 
 #X, Y = make_regression(n_samples=100, n_features=1, noise=0.4, bias=50)
 X = [1,2,3,4,5]
 y = [3,4,5,6,7]
-linear = Linear(X, y, scale=0, verbose=1, num_iter=5000)
-cost = linear.train()
 
+mLinear = MultipleLinear(np.array(X), y, 0.005)
+theta, cost_h, theta_h = mLinear.train(100)
+for t in theta_h[-10:]:
+    print(t)
 
 """
+linear = Linear(X, y, scale=0, verbose=0)
+cost = linear.train(10)
+
+
 X_test = [6,700, 8,9000]
 Y_test = [8,9,10,11]
 predictions = linear.predict(X_test)
