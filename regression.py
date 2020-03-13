@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np 
-import pandas as pd
+#import pandas as pd
 from math import sqrt
-from sklearn.datasets import make_regression
+#from sklearn.datasets import make_regression
+
+np.random.seed(42)
 
 
 class Linear:
@@ -24,15 +26,6 @@ class Linear:
         X = X / np.std(X)
         return X
         
-    def calculate_coeff(self):
-        numerator = 0
-        denominator = 0
-        for x, y in zip(self.X, self.y):
-            numerator += (x - self.X_mean) * (y - self.y_mean)
-            denominator += (x - self.y_mean) ** 2
-        self.theta1 = numerator / denominator
-        self.theta0 = self.y_mean - (self.theta1 * self.X_mean)
-    
     def rmse_metric(self, actual, predicted):
         sum_error = 0.0
         for y, y_hat in zip(actual, predicted):
@@ -90,9 +83,6 @@ class Linear:
     def train(self, num_iter):
         cost_history = [0] * num_iter
         for i in range(num_iter):
-            print(self.theta0)
-            print(self.theta1)
-            print()
             self.updateParameters()
             cost_history[i] = self.cost()
         if self.verbose == 1:
@@ -112,23 +102,35 @@ class MultipleLinear:
         self.theta = np.random.randn(X.shape[1] + 1) if X.ndim >= 2 else np.random.randn(2)
     
     def hypothesis(self, X):
-        #print("MULTI: ", self.theta)
-
+        if X.ndim == 0:
+            X = X.reshape([1,1])
         return self.theta[0] + np.matmul(X, self.theta[1:])
 
     def cost(self):
-        h = self.hypothesis(self.X)
-        self.J = (1 / (2 * self.m)) * np.sum((h - self.y)**2)
+        self.J = 0
+        for xs, ys in zip(self.X, self.y):
+            h = self.hypothesis(xs)
+            self.J += (1 / (2 * self.m)) * np.sum((h - ys)**2)
         return self.J
     
+    def derivatives(self, X, y):
+        value = 0
+        theta0 = 0
+        for xs, ys in zip(X, y):
+            theta0 += (self.hypothesis(xs) - ys)
+            value += (self.hypothesis(xs) - ys) * xs
+        return value, theta0
+
+
     def train(self, num_iter=1000, lr=0.005):
         self.cost_history = []
         self.theta_history = []
         for i in range(num_iter):
-            h = self.hypothesis(self.X)
             self.cost_history.append(self.cost())
             self.theta_history.append(self.theta)
-            self.theta = self.theta - (self.lr / self.m) * np.sum((self.hypothesis(self.X) - self.y) * X, axis=0)
+            sum1, sum0 = self.derivatives(self.X, self.y)
+            self.theta[0] = self.theta[1:] - (self.lr / self.m) * sum0
+            self.theta[1:] = self.theta[1:] - (self.lr / self.m) * sum1
         
         return self.theta, self.cost_history, self.theta_history 
 
@@ -141,16 +143,16 @@ class MultipleLinear:
 X = [1,2,3,4,5]
 y = [3,4,5,6,7]
 
-mLinear = MultipleLinear(np.array(X), y, 0.005)
-theta, cost_h, theta_h = mLinear.train(100)
-for t in theta_h[-10:]:
-    print(t)
+mLinear = MultipleLinear(X, y, 0.005)
+theta, cost_h, theta_h = mLinear.train(1000)
+
+linear = Linear(X, y, scale=0, verbose=0)
+cost = linear.train(1000)
+
+print(cost_h[-3:])
+print(cost[-3:])
 
 """
-linear = Linear(X, y, scale=0, verbose=0)
-cost = linear.train(10)
-
-
 X_test = [6,700, 8,9000]
 Y_test = [8,9,10,11]
 predictions = linear.predict(X_test)
