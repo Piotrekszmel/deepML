@@ -82,10 +82,13 @@ class Linear:
         return self.Y_hat
 
     def plotLine(self, X, y, theta0, theta):
-        max_x = np.max(X) + np.max(X) * 0.2
-        min_x = np.min(X) - np.min(X) * 0.2
-        max_y = np.max(y) + np.max(y) * 0.2
-        min_y = np.min(y) - np.min(y) * 0.2
+        X = np.array(X)
+        print(X.shape)        
+        assert X.ndim == 1 or (X.ndim == 2 and X.shape[1] == 1)
+        max_x = np.max(X) + np.max(X) * 0.4
+        min_x = np.min(X) - np.min(X) * 0.4
+        max_y = np.max(y) + np.max(y) * 0.4
+        min_y = np.min(y) - np.min(y) * 0.4
 
         xplot = np.linspace(min_x, max_x, 5000)
         yplot = theta0 + theta * xplot
@@ -101,12 +104,12 @@ class Linear:
         plt.show()
 
 
-X, y = make_regression(n_samples=10, n_features=3, noise=0.4, bias=50)
+X, y = make_regression(n_samples=10, n_features=1, noise=0.4, bias=50)
 
 #X = [[1,2,3,4,5], [10,11,12,13,14]]
 #y = [6, 15]
-linear = Linear(X, y, scale=0, verbose=0)
-theta, cost_h, theta_h = linear.train(2000)
+linear = Linear([1,2,3], [4,5,6], scale=0, verbose=1)
+theta, cost_h, theta_h = linear.train(10000)
 
 linear.plotCost(cost_h, linear.num_iter)
 #predictions = linear.predict([[6,7,8,9,10]])
