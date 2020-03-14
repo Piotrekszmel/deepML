@@ -3,12 +3,46 @@ import numpy as np
 import pandas as pd
 from math import sqrt
 from sklearn.datasets import make_regression
+from typing import Union, Tuple
 
 np.random.seed(42)
 
 
 class Linear:
-    def __init__(self, X, y, scale=0, lr=0.005, verbose=0):
+    """
+    A linear approach to modeling the relationship 
+    between dependent variable and 
+    one or more independent variables.
+
+    # Example: 
+    
+    ```python
+        X = [[1,2,3,4,5], [10,11,12,13,14]]
+        y = [6, 15]
+        
+        linear = Linear(X, y, scale=0, verbose=0)
+        
+        theta, cost_h, theta_h = linear.train(10000)
+        
+        predictions = linear.predict([[6,7,8,9,10]])
+        
+        linear.plotCost(cost_h, linear.num_iter)
+    
+    @param: X (Union[list, tuple, numpy array]) : independent variables
+    @param: y (Union[list, tuple, numpy array]) : dependent variable
+    @param: scale (boolean) : if True then scale X variables to mean 0 and stddev 1
+    @param: lr (float) : learning rate for updating theta
+    @param: verbose (boolean) : if True then plot best fit line (available only for simple Linear Regression)
+    
+    @hypothesis: return solved linear equation
+    @standarize: return scaled X data
+    @cost: return cost value for given X and y
+    @derivatives: return calculated derivatives for theta
+    @train: return theta, cost history and theta history
+    """
+
+
+    def __init__(self, X, y, scale=True, lr=0.005, verbose=0):
         X = np.array(X)
         self.X = self.standardize(X) if scale == 1 else X
         self.y = y
@@ -19,17 +53,18 @@ class Linear:
         self.verbose = verbose
         self.theta = np.random.randn(X.shape[1] + 1) if X.ndim >= 2 else np.random.randn(2)
     
-    def hypothesis(self, X):
+    def hypothesis(self, X: np.array) -> float:
         if X.ndim == 0:
             X = X.reshape([1,1])
+        print(self.theta[0] + np.matmul(X, self.theta[1:]))
         return self.theta[0] + np.matmul(X, self.theta[1:])
 
-    def standardize(self, X):
+    def standardize(self, X: np.array) -> np.array :
         X = X - np.mean(X) 
         X = X / np.std(X)
         return X
         
-    def rmse_metric(self, actual, predicted):
+    def rmse_metric(self, actual: Union[list, tuple, np.array], predicted: Union[list, tuple, np.array]) -> float:
         sum_error = 0.0
         for y, y_hat in zip(actual, predicted):
             prediction_error = y_hat - y
@@ -61,7 +96,7 @@ class Linear:
         self.theta[0] = self.theta[0] - (self.lr / self.m) * dtheta0
         self.theta[1:] = self.theta[1:] - (self.lr / self.m) * dtheta
 
-    def train(self, num_iter):
+    def train(self, num_iter: int) -> Tuple[np.array, list, list]:
         self.num_iter = num_iter
         self.cost_history = []
         self.theta_history = []
@@ -74,14 +109,14 @@ class Linear:
 
         return self.theta, self.cost_history, self.theta_history
     
-    def predict(self, X_test):
+    def predict(self, X_test: Union[list, tuple, np.array]) -> list:
         X_test = np.array(X_test)
         self.Y_hat = []
         for xs in X_test:
             self.Y_hat.append(self.hypothesis(xs))
         return self.Y_hat
 
-    def plotLine(self, X, y, theta0, theta):
+    def plotLine(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array], theta0: np.array, theta: np.array) -> None:
         X = np.array(X)
         print(X.shape)        
         assert X.ndim == 1 or (X.ndim == 2 and X.shape[1] == 1)
@@ -99,23 +134,7 @@ class Linear:
         plt.axis([min_x * 1.2, max_x * 1.2, min_y * 1.2, max_y * 1.2])
         plt.show()
 
-    def plotCost(self, cost_h, num_iter):
+    def plotCost(self, cost_h: list, num_iter: list) -> None:
         plt.plot(list(range(num_iter)), cost_h, "-r")
         plt.show()
-
-
-X, y = make_regression(n_samples=10, n_features=1, noise=0.4, bias=50)
-
-#X = [[1,2,3,4,5], [10,11,12,13,14]]
-#y = [6, 15]
-linear = Linear([1,2,3], [4,5,6], scale=0, verbose=1)
-theta, cost_h, theta_h = linear.train(10000)
-
-linear.plotCost(cost_h, linear.num_iter)
-#predictions = linear.predict([[6,7,8,9,10]])
-#print(predictions)
-
-
-
-
 
