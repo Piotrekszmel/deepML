@@ -148,3 +148,16 @@ class Logistic:
     
     def loss(h, y):
         return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
+    
+    def gradient(self, X, y, h):
+        return np.dot(X.T, (h - y)) / y.shape[0]
+    
+    def updateParameters(self, lr):
+        self.theta -= lr * self.gradient(self.X, self.y, self.h)
+    
+    def predict_probs(self, X, theta):
+        return self.sigmoid(np.dot(X, theta))
+
+    def predict(self, X, theta, threshold=0.5):
+        return self.predict_probs(X, theta) >= threshold
+    
