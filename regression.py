@@ -5,8 +5,6 @@ from math import sqrt
 from sklearn.datasets import make_regression
 from typing import Union, Tuple
 
-np.random.seed(42)
-
 
 class Linear:
     """
@@ -40,7 +38,6 @@ class Linear:
     @derivatives: return calculated derivatives for theta
     @train: return theta, cost history and theta history
     """
-
 
     def __init__(self, X, y, scale=True, lr=0.005, verbose=0):
         X = np.array(X)
@@ -118,7 +115,6 @@ class Linear:
 
     def plotLine(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array], theta0: np.array, theta: np.array) -> None:
         X = np.array(X)
-        print(X.shape)        
         assert X.ndim == 1 or (X.ndim == 2 and X.shape[1] == 1)
         max_x = np.max(X) + np.max(X) * 0.4
         min_x = np.min(X) - np.min(X) * 0.4
@@ -138,3 +134,17 @@ class Linear:
         plt.plot(list(range(num_iter)), cost_h, "-r")
         plt.show()
 
+
+class Logistic: 
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+        self.theta = np.random.randn(X.shape[1])
+        self.z = np.dot(X, theta)
+        self.h = self.sigmoid(self.z)
+
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
+    
+    def loss(h, y):
+        return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
