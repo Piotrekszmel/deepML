@@ -20,7 +20,7 @@ class Linear:
         
         linear = Linear(X, y, scale=0, verbose=0)
         
-        theta, cost_h, theta_h = linear.train(10000)
+        theta, cost_h, theta_h = linear.fit(10000)
         
         predictions = linear.predict([[6,7,8,9,10]])
         
@@ -36,10 +36,10 @@ class Linear:
     @standarize: return scaled X data
     @cost: return cost value for given X and y
     @derivatives: return calculated derivatives for theta
-    @train: return theta, cost history and theta history
+    @fit: return theta, cost history and theta history
     """
 
-    def __init__(self, X, y, scale=True, lr=0.005, verbose=0):
+    def __init__(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array], scale=True, lr=0.005, verbose=0) -> None:
         X = np.array(X)
         self.X = self.standardize(X) if scale == 1 else X
         self.y = y
@@ -53,7 +53,6 @@ class Linear:
     def hypothesis(self, X: np.array) -> float:
         if X.ndim == 0:
             X = X.reshape([1,1])
-        print(self.theta[0] + np.matmul(X, self.theta[1:]))
         return self.theta[0] + np.matmul(X, self.theta[1:])
 
     def standardize(self, X: np.array) -> np.array :
@@ -93,7 +92,7 @@ class Linear:
         self.theta[0] = self.theta[0] - (self.lr / self.m) * dtheta0
         self.theta[1:] = self.theta[1:] - (self.lr / self.m) * dtheta
 
-    def train(self, num_iter: int) -> Tuple[np.array, list, list]:
+    def fit(self, num_iter: int) -> Tuple[np.array, list, list]:
         self.num_iter = num_iter
         self.cost_history = []
         self.theta_history = []
@@ -146,7 +145,7 @@ class Logistic:
         return np.concatenate((intercept, X), axis=1)
 
     def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
+        return 1 / (1 + np.exp(-z, dtype=np.float128))
     
     def loss(self, h, y):
         return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
@@ -162,7 +161,7 @@ class Logistic:
     def updateParameters(self, X, y, lr, h):
         self.theta -= lr * self.gradient(X, y, h)
     
-    def train(self, X, y, num_iter):
+    def fit(self, X, y, num_iter):
         X = np.array(X)
         y = np.array(y)
         if X.ndim == 1:
@@ -194,9 +193,25 @@ class Logistic:
             X = self.add_intercept(X)
 
         return self.predict_probs(X, theta) >= threshold
-    
-logistic = Logistic(lr=0.01, verbose=1)
-logistic.train([1,2,3,4,5], [0, 1, 1, 0, 1], 300000)
-preds = logistic.predict([1,2,3,4,5], logistic.theta)
-print("\nMean: ", (preds == [0,1,1,0,1]).mean())
-print("\n", logistic.theta)
+
+
+
+
+from sklearn.linear_model import LogisticRegression
+import sklearn
+
+"""
+iris = sklearn.datasets.load_iris()
+X = iris.data[:, :2]
+y = (iris.target != 0) * 1
+
+logistic = Logistic(lr=0.1, verbose=1)
+logistic.fit(X, y, 300000)
+preds = logistic.predict(X, logistic.theta)
+print("\nMean: ", (preds == y).mean())
+print()
+model = LogisticRegression(C=1e20)
+model.fit(X, y)
+preds = model.predict(X)
+print("Mean: ", (preds==y).mean())
+"""
