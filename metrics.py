@@ -6,7 +6,7 @@ class confusion_matrix:
         self.y_true = y_true
         self.y_pred = y_pred
         self.labels = labels
-        self.K = len(np.unique(y_true)) if labels == None else len(labels)
+        self.K = len(labels) if labels else len(np.unique(y_true))
         self.cm = self.make_matrix()
         self.acc = self.accuracy(self.cm)
     
@@ -22,9 +22,8 @@ class confusion_matrix:
         self.acc = numerator / denominator
         return self.acc
     
+    def __repr__(self):
+        return f"labels: {self.labels} \n\n {self.cm}  \n\n Accuracy: {self.acc}"
 
-confusion_m = confusion_matrix([1,0,0,0], [0,0,0,1], labels=[True,False])
-print(confusion_m.cm)
-print()
-print(confusion_m.acc)
-print(confusion_m.labels)
+confusion_m = confusion_matrix([0,0,0,0], [0,0,0,1], labels=[0, 1])
+print(confusion_m)

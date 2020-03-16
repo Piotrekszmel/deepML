@@ -132,6 +132,10 @@ class Linear:
     def plotCost(self, loss_h: list, num_iter: list) -> None:
         plt.plot(list(range(num_iter)), loss_h, "-r")
         plt.show()
+    
+    def __repr__(self):
+        return (f"Parameters: \n lr: {self.lr} \n m: {self.m} \n n: {self.n} \n verbose: {self.verbose} " +
+                f"\n scale: {self.scale} \n")
 
 
 class Logistic: 
@@ -210,20 +214,27 @@ class Logistic:
         plt.contour(xx1, xx2, probs, [0.5], linewidths=1, colors='black')
         plt.show()
 
+    def __repr__(self):
+        return (f"Parameters: \n lr: {self.lr} \n fit_intercept: {self.fit_intercept} \n "
+        f"verbose: {self.verbose} \n")
 
-
-
+"""
 from sklearn.linear_model import LogisticRegression
 import sklearn
 
 iris = sklearn.datasets.load_iris()
 X = iris.data[:, :2]
 y = (iris.target != 0) * 1
+"""
+linear = Linear([1,2], [1], scale=1, lr=0.001, verbose=1)
+print(linear)
 
 logistic = Logistic(lr=0.1, verbose=1)
+print(logistic)
+"""
 logistic.fit(X, y, 250000)
 preds = logistic.predict(X)
 print("Mean: ", (preds == y).mean())
 print(type(logistic.theta))
 logistic.plotLine(X, y)
-
+"""
