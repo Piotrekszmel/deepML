@@ -15,7 +15,7 @@ class confusion_matrix:
     def make_matrix(self):
         self.cm = np.zeros((self.K, self.K))
         for i in range(len(self.y_true)):
-            self.cm[self.y_true[i], self.y_pred[i]] += 1
+            self.cm[int(self.y_true[i]), int(self.y_pred[i])] += 1
         return self.cm
     
     def accuracy(self, cm):
@@ -45,6 +45,3 @@ class confusion_matrix:
     def __repr__(self):
         return (f" labels: {self.labels} \n\n matrix: \n {self.cm} \n\n accuracy: {self.acc} \n" + 
         f" recall: {self.rec} \n precision: {self.prec} \n")
-
-confusion_m = confusion_matrix([1,1,0,0], [0,1,1,0], labels=[0, 1])
-print(confusion_m)

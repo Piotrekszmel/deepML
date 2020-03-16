@@ -5,6 +5,8 @@ from math import sqrt
 from sklearn.datasets import make_regression
 from typing import Union, Tuple
 
+from metrics import confusion_matrix
+
 
 class Linear:
     """
@@ -182,7 +184,7 @@ class Logistic:
 
             if self.verbose == 1 and i % 100000 == 0:
                 h = self.hypothesis(X)
-                print(f"loss: {self.loss(h, y)}")
+                print(f" loss: {self.loss(h, y)}")
     
     def predict_probs(self, X):
         if self.fit_intercept:
@@ -199,7 +201,7 @@ class Logistic:
         return self.predict_probs(X).round()
     
     def evaluate(self, actual, predicted):
-        pass
+        return print(confusion_matrix(actual, predicted, labels=[0,1]))
 
     def plotLine(self, X, y):
         plt.figure(figsize=(10, 6))
@@ -218,23 +220,23 @@ class Logistic:
         return (f"Parameters: \n lr: {self.lr} \n fit_intercept: {self.fit_intercept} \n "
         f"verbose: {self.verbose} \n")
 
-"""
+
 from sklearn.linear_model import LogisticRegression
 import sklearn
 
 iris = sklearn.datasets.load_iris()
 X = iris.data[:, :2]
 y = (iris.target != 0) * 1
-"""
-linear = Linear([1,2], [1], scale=1, lr=0.001, verbose=1)
-print(linear)
+
+
+from metrics import confusion_matrix
 
 logistic = Logistic(lr=0.1, verbose=1)
-print(logistic)
-"""
+
+
 logistic.fit(X, y, 250000)
 preds = logistic.predict(X)
-print("Mean: ", (preds == y).mean())
-print(type(logistic.theta))
-logistic.plotLine(X, y)
-"""
+logistic.evaluate(y, preds)
+#logistic.plotLine(X, y)
+
+
