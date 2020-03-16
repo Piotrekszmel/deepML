@@ -41,7 +41,7 @@ class Linear:
     @fit: return theta, loss history and theta history
     """
 
-    def __init__(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array], scale=True, lr=0.005, verbose=0) -> None:
+    def __init__(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array], scale: bool = True, lr: float= 0.005, verbose: bool = 0) -> None:
         X = np.array(X)
         self.X = self.standardize(X) if scale == 1 else X
         self.y = y
@@ -141,33 +141,33 @@ class Linear:
 
 
 class Logistic: 
-    def __init__(self, lr, fit_intercept=True, verbose=0):
+    def __init__(self, lr: float, fit_intercept: bool = True, verbose: bool = 0) -> None:
         self.lr = lr
         self.fit_intercept = fit_intercept
         self.verbose = verbose
 
-    def add_intercept(self, X):
+    def add_intercept(self, X: np.array) -> np.array:
         intercept = np.ones((X.shape[0], 1))
         return np.concatenate((intercept, X), axis=1)
 
-    def sigmoid(self, z):
+    def sigmoid(self, z: np.array) -> np.array:
         return 1 / (1 + np.exp(-z, dtype=np.float128))
     
-    def loss(self, h, y):
+    def loss(self, h: np.array, y: np.array) -> np.float128:
         return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
     
-    def hypothesis(self, X):
+    def hypothesis(self, X: np.array) -> np.array:
         z = np.dot(X, self.theta)
         h = self.sigmoid(z)
         return h
 
-    def gradient(self, X, y, h):
+    def gradient(self, X: np.array, y: np.array, h: np.array):
         return np.dot(X.T, (h - y)) / y.shape[0]
     
-    def updateParameters(self, X, y, lr, h):
+    def updateParameters(self, X: np.array, y: np.array, lr: float, h: np.array) -> None:
         self.theta -= lr * self.gradient(X, y, h)
     
-    def fit(self, X, y, num_iter):
+    def fit(self, X: np.array, y: np.array, num_iter: int) -> None:
         X = np.array(X)
         y = np.array(y)
         if X.ndim == 1:
@@ -186,24 +186,22 @@ class Logistic:
                 h = self.hypothesis(X)
                 print(f" loss: {self.loss(h, y)}")
     
-    def predict_probs(self, X):
+    def predict_probs(self, X: np.array) -> np.array:
         if self.fit_intercept:
             X = self.add_intercept(X)
-
         return self.sigmoid(np.dot(X, self.theta))
 
-    def predict(self, X, threshold=0.5):
+    def predict(self, X: np.array, threshold: float = 0.5) -> np.array:
         X = np.array(X)
 
         if X.ndim == 1:
             X = X.reshape((X.shape[0], 1))
-
         return self.predict_probs(X).round()
     
-    def evaluate(self, actual, predicted):
-        return print(confusion_matrix(actual, predicted, labels=[0,1]))
+    def evaluate(self, actual: np.array, predicted: np.array) -> confusion_matrix:
+        return confusion_matrix(actual, predicted, labels=[0,1])
 
-    def plotLine(self, X, y):
+    def plotLine(self, X: np.array, y: np.array) -> None:
         plt.figure(figsize=(10, 6))
         plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], color='b', label='0')
         plt.scatter(X[y == 1][:, 0], X[y == 1][:, 1], color='r', label='1')
@@ -234,7 +232,7 @@ from metrics import confusion_matrix
 logistic = Logistic(lr=0.1, verbose=1)
 
 
-logistic.fit(X, y, 250000)
+logistic.fit(X, y, 2)
 preds = logistic.predict(X)
 logistic.evaluate(y, preds)
 #logistic.plotLine(X, y)
