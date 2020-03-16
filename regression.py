@@ -149,7 +149,6 @@ class Logistic:
     # Example: 
     
     ```python
-        from sklearn.linear_model import LogisticRegression
         import sklearn
 
         iris = sklearn.datasets.load_iris()

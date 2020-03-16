@@ -1,7 +1,25 @@
 import numpy as np 
-
+from typing import Union
 
 class confusion_matrix:
+    """
+    Create confusion matrix for given labels
+
+    # Example: 
+    
+    ```python
+        cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+
+    @param: y_true (np.array) : true labels 
+    @param: y_pred (np.array) : predicted labels
+    @labels: Union[list, tuple] : all unique values from y_true
+    
+    @make_matrix: return confusion_matrix
+    @accuracy: return accuracy for given confusion_matrix
+    @recall: return recall for given confusion_matrix
+    @precision: return precision for given confusion_matrix
+    """
+    
     def __init__(self, y_true, y_pred, labels=None):
         self.y_true = y_true
         self.y_pred = y_pred
