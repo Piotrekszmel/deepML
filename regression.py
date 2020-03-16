@@ -136,28 +136,67 @@ class Linear:
 
 
 class Logistic: 
-    def __init__(self, X, y):
-        self.X = X
-        self.y = y
-        self.theta = np.random.randn(X.shape[1])
-        self.z = np.dot(X, theta)
-        self.h = self.sigmoid(self.z)
+    def __init__(self, lr, fit_intercept=True, verbose=0):
+        self.lr = lr
+        self.fit_intercept = fit_intercept
+        self.verbose = verbose
+
+    def add_intercept(self, X):
+        intercept = np.ones((X.shape[0], 1))
+        return np.concatenate((intercept, X), axis=1)
 
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
     
-    def loss(h, y):
+    def loss(self, h, y):
         return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
     
+    def hypothesis(self, X):
+        z = np.dot(X, self.theta)
+        h = self.sigmoid(z)
+        return h
+
     def gradient(self, X, y, h):
         return np.dot(X.T, (h - y)) / y.shape[0]
     
-    def updateParameters(self, lr):
-        self.theta -= lr * self.gradient(self.X, self.y, self.h)
+    def updateParameters(self, X, y, lr, h):
+        self.theta -= lr * self.gradient(X, y, h)
+    
+    def train(self, X, y, num_iter):
+        X = np.array(X)
+        y = np.array(y)
+        if X.ndim == 1:
+            X = X.reshape((X.shape[0], 1))
+        
+        if self.fit_intercept:
+            X = self.add_intercept(X)
+        
+        self.theta = np.zeros((X.shape[1]))
+
+        for i in range(num_iter):
+            h = self.hypothesis(X)
+            self.updateParameters(X, y, self.lr, h)
+
+            if self.verbose == 1 and i % 100000 == 0:
+                h = self.hypothesis(X)
+                print(f"loss: {self.loss(h, y)}")
     
     def predict_probs(self, X, theta):
         return self.sigmoid(np.dot(X, theta))
 
     def predict(self, X, theta, threshold=0.5):
+        X = np.array(X)
+
+        if X.ndim == 1:
+            X = X.reshape((X.shape[0], 1))
+
+        if self.fit_intercept:
+            X = self.add_intercept(X)
+
         return self.predict_probs(X, theta) >= threshold
     
+logistic = Logistic(lr=0.01, verbose=1)
+logistic.train([1,2,3,4,5], [0, 1, 1, 0, 1], 300000)
+preds = logistic.predict([1,2,3,4,5], logistic.theta)
+print("\nMean: ", (preds == [0,1,1,0,1]).mean())
+print("\n", logistic.theta)
