@@ -141,6 +141,42 @@ class Linear:
 
 
 class Logistic: 
+    """
+    A logistic approach to modeling the relationship 
+    between dependent variable and 
+    one or more independent variables.
+
+    # Example: 
+    
+    ```python
+        from sklearn.linear_model import LogisticRegression
+        import sklearn
+
+        iris = sklearn.datasets.load_iris()
+        X = iris.data[:, :2]
+        y = (iris.target != 0) * 1
+
+        logistic = Logistic(lr=0.1, verbose=1)
+
+        logistic.fit(X, y, 250000)
+        preds = logistic.predict(X)
+        print(logistic.evaluate(y, preds))
+        logistic.plotLine(X, y)
+    
+    @param: lr (float) : learning rate for updating theta
+    @param: fit_intercept (bool) : if true then add intercept to X 
+    @param: verbose (boolean) : if True then plot best fit line
+    
+    @hypothesis: return solved linear equation
+    @sigmoid: return value of sigmoid function for given z
+    @loss: return loss value for given X and y
+    @gradient: return calculated gradient for theta
+    @updateParameters: updates theta parameters according to calculated gradient
+    @fit: train logistic model
+    @evaluate: return confusion matrix for given y_true and y_predicted
+    @predict: return predicted y based on given X
+    """
+
     def __init__(self, lr: float, fit_intercept: bool = True, verbose: bool = 0) -> None:
         self.lr = lr
         self.fit_intercept = fit_intercept
@@ -219,22 +255,6 @@ class Logistic:
         f"verbose: {self.verbose} \n")
 
 
-from sklearn.linear_model import LogisticRegression
-import sklearn
 
-iris = sklearn.datasets.load_iris()
-X = iris.data[:, :2]
-y = (iris.target != 0) * 1
-
-
-from metrics import confusion_matrix
-
-logistic = Logistic(lr=0.1, verbose=1)
-
-
-logistic.fit(X, y, 2)
-preds = logistic.predict(X)
-logistic.evaluate(y, preds)
-#logistic.plotLine(X, y)
 
 
