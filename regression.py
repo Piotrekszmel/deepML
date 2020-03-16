@@ -20,11 +20,11 @@ class Linear:
         
         linear = Linear(X, y, scale=0, verbose=0)
         
-        theta, cost_h, theta_h = linear.fit(10000)
+        theta, loss_h, theta_h = linear.fit(10000)
         
         predictions = linear.predict([[6,7,8,9,10]])
         
-        linear.plotCost(cost_h, linear.num_iter)
+        linear.plotCost(loss_h, linear.num_iter)
     
     @param: X (Union[list, tuple, numpy array]) : independent variables
     @param: y (Union[list, tuple, numpy array]) : dependent variable
@@ -34,9 +34,9 @@ class Linear:
     
     @hypothesis: return solved linear equation
     @standarize: return scaled X data
-    @cost: return cost value for given X and y
+    @loss: return loss value for given X and y
     @derivatives: return calculated derivatives for theta
-    @fit: return theta, cost history and theta history
+    @fit: return theta, loss history and theta history
     """
 
     def __init__(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array], scale=True, lr=0.005, verbose=0) -> None:
@@ -68,7 +68,7 @@ class Linear:
         mean_error = sum_error / float(len(actual))
         return sqrt(mean_error)
 
-    def cost(self):
+    def loss(self):
         self.J = 0
         for xs, ys in zip(self.X, self.y):
             h = self.hypothesis(xs)
@@ -94,16 +94,16 @@ class Linear:
 
     def fit(self, num_iter: int) -> Tuple[np.array, list, list]:
         self.num_iter = num_iter
-        self.cost_history = []
+        self.loss_history = []
         self.theta_history = []
         for i in range(num_iter):
-            self.cost_history.append(self.cost())
+            self.loss_history.append(self.loss())
             self.theta_history.append(self.theta)
             self.updateParameters()
         if self.verbose == 1:
             self.plotLine(self.X, self.y, self.theta[0], self.theta[1:])                                                  
 
-        return self.theta, self.cost_history, self.theta_history
+        return self.theta, self.loss_history, self.theta_history
     
     def predict(self, X_test: Union[list, tuple, np.array]) -> list:
         X_test = np.array(X_test)
@@ -129,8 +129,8 @@ class Linear:
         plt.axis([min_x * 1.2, max_x * 1.2, min_y * 1.2, max_y * 1.2])
         plt.show()
 
-    def plotCost(self, cost_h: list, num_iter: list) -> None:
-        plt.plot(list(range(num_iter)), cost_h, "-r")
+    def plotCost(self, loss_h: list, num_iter: list) -> None:
+        plt.plot(list(range(num_iter)), loss_h, "-r")
         plt.show()
 
 
@@ -181,6 +181,9 @@ class Logistic:
                 print(f"loss: {self.loss(h, y)}")
     
     def predict_probs(self, X):
+        if self.fit_intercept:
+            X = self.add_intercept(X)
+
         return self.sigmoid(np.dot(X, self.theta))
 
     def predict(self, X, threshold=0.5):
@@ -189,12 +192,12 @@ class Logistic:
         if X.ndim == 1:
             X = X.reshape((X.shape[0], 1))
 
-        if self.fit_intercept:
-            X = self.add_intercept(X)
+        return self.predict_probs(X).round()
+    
+    def evaluate(self, actual, predicted):
+        pass
 
-        return self.predict_probs(X) >= threshold
-
-    def plotRegression(self, X, y):
+    def plotLine(self, X, y):
         plt.figure(figsize=(10, 6))
         plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], color='b', label='0')
         plt.scatter(X[y == 1][:, 0], X[y == 1][:, 1], color='r', label='1')
@@ -213,21 +216,14 @@ class Logistic:
 from sklearn.linear_model import LogisticRegression
 import sklearn
 
-
 iris = sklearn.datasets.load_iris()
 X = iris.data[:, :2]
 y = (iris.target != 0) * 1
 
-
-plt.figure(figsize=(10, 6))
-plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], color='b', label='0')
-plt.scatter(X[y == 1][:, 0], X[y == 1][:, 1], color='r', label='1')
-plt.legend();
-plt.show()
-
 logistic = Logistic(lr=0.1, verbose=1)
-logistic.fit(X, y, 3000)
+logistic.fit(X, y, 250000)
 preds = logistic.predict(X)
-print("\nMean: ", (preds == y).mean())
+print("Mean: ", (preds == y).mean())
+print(type(logistic.theta))
+logistic.plotLine(X, y)
 
-#logistic.plotRegression(X, y)
