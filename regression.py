@@ -180,10 +180,10 @@ class Logistic:
                 h = self.hypothesis(X)
                 print(f"loss: {self.loss(h, y)}")
     
-    def predict_probs(self, X, theta):
-        return self.sigmoid(np.dot(X, theta))
+    def predict_probs(self, X):
+        return self.sigmoid(np.dot(X, self.theta))
 
-    def predict(self, X, theta, threshold=0.5):
+    def predict(self, X, threshold=0.5):
         X = np.array(X)
 
         if X.ndim == 1:
@@ -192,7 +192,20 @@ class Logistic:
         if self.fit_intercept:
             X = self.add_intercept(X)
 
-        return self.predict_probs(X, theta) >= threshold
+        return self.predict_probs(X) >= threshold
+
+    def plotRegression(self, X, y):
+        plt.figure(figsize=(10, 6))
+        plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], color='b', label='0')
+        plt.scatter(X[y == 1][:, 0], X[y == 1][:, 1], color='r', label='1')
+        plt.legend()
+        x1_min, x1_max = X[:,0].min(), X[:,0].max(),
+        x2_min, x2_max = X[:,1].min(), X[:,1].max(),
+        xx1, xx2 = np.meshgrid(np.linspace(x1_min, x1_max), np.linspace(x2_min, x2_max))
+        grid = np.c_[xx1.ravel(), xx2.ravel()]
+        probs = self.predict_probs(grid).reshape(xx1.shape)
+        plt.contour(xx1, xx2, probs, [0.5], linewidths=1, colors='black')
+        plt.show()
 
 
 
@@ -200,18 +213,21 @@ class Logistic:
 from sklearn.linear_model import LogisticRegression
 import sklearn
 
-"""
+
 iris = sklearn.datasets.load_iris()
 X = iris.data[:, :2]
 y = (iris.target != 0) * 1
 
+
+plt.figure(figsize=(10, 6))
+plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], color='b', label='0')
+plt.scatter(X[y == 1][:, 0], X[y == 1][:, 1], color='r', label='1')
+plt.legend();
+plt.show()
+
 logistic = Logistic(lr=0.1, verbose=1)
-logistic.fit(X, y, 300000)
-preds = logistic.predict(X, logistic.theta)
+logistic.fit(X, y, 3000)
+preds = logistic.predict(X)
 print("\nMean: ", (preds == y).mean())
-print()
-model = LogisticRegression(C=1e20)
-model.fit(X, y)
-preds = model.predict(X)
-print("Mean: ", (preds==y).mean())
-"""
+
+#logistic.plotRegression(X, y)
