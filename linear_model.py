@@ -8,7 +8,7 @@ from typing import Union, Tuple
 from metrics import confusion_matrix
 
 
-class Linear:
+class LinearRegression:
     """
     A linear approach to modeling the relationship 
     between dependent variable and 
@@ -20,7 +20,7 @@ class Linear:
         X = [[1,2,3,4,5], [10,11,12,13,14]]
         y = [6, 15]
         
-        linear = Linear(X, y, scale=0, verbose=0)
+        linear = LinearRegression(X, y, scale=0, verbose=0)
         
         theta, loss_h, theta_h = linear.fit(10000)
         
@@ -140,7 +140,7 @@ class Linear:
                 f"\n scale: {self.scale} \n")
 
 
-class Logistic: 
+class LogisticRegression: 
     """
     A logistic approach to modeling the relationship 
     between dependent variable and 
@@ -155,7 +155,7 @@ class Logistic:
         X = iris.data[:, :2]
         y = (iris.target != 0) * 1
 
-        logistic = Logistic(lr=0.1, verbose=1)
+        logistic = LogisticRegression(lr=0.1, verbose=1)
 
         logistic.fit(X, y, 250000)
         preds = logistic.predict(X)
@@ -252,8 +252,3 @@ class Logistic:
     def __repr__(self):
         return (f"Parameters: \n lr: {self.lr} \n fit_intercept: {self.fit_intercept} \n "
         f"verbose: {self.verbose} \n")
-
-
-
-
-
