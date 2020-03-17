@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Tuple
 
 
 class Node: 
@@ -20,21 +21,34 @@ class DecisionTreeClassifier:
     """
     Decision Tree Classifier used for classification tasks. 
 
+    # Example: 
+    
+    ```python
+        import sys
+        from sklearn.datasets import load_iris
+
+        dataset = load_iris()
+        X, y = dataset.data, dataset.target  # pylint: disable=no-member
+        clf = DecisionTreeClassifier(max_depth=1)
+        clf.fit(X, y)
+        print(clf.predict([[5.0, 3.6, 1.3, 0.3]]))
+
+    
     @param: max_depth (int) : max depth of tree
     """
 
     def __init__(self, max_depth: int = None) -> None:
         self.max_depth = max_depth
 
-    def fit(self, X, y):
+    def fit(self, X: np.array, y: np.array) -> None:
         self.n_classes = len(set(y))
         self.n_features = X.shape[1]
         self.tree = self._grow_tree(X, y)
 
-    def predict(self, X):
+    def predict(self, X: np.array) -> list:
         return [self._predict(inputs) for inputs in X]
     
-    def _best_split(self, X, y):
+    def _best_split(self, X: np.array, y: np.array) -> Tuple[int, np.float64]:
         m = y.size
         if m <= 1:
             return None, None
@@ -65,7 +79,7 @@ class DecisionTreeClassifier:
                     
         return best_idx, best_thr
     
-    def _grow_tree(self, X, y, depth=0):
+    def _grow_tree(self, X: np.array, y: np.array, depth: int = 0) -> Node:
         num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes)]
         predicted_class = np.argmax(num_samples_per_class)
         node = Node(predicted_class=predicted_class)
@@ -81,7 +95,7 @@ class DecisionTreeClassifier:
                 node.right = self._grow_tree(X_right, y_right, depth + 1)
         return node
 
-    def _predict(self, inputs):
+    def _predict(self, inputs: list) -> np.int64:
         node = self.tree
         while node.left:
             if inputs[node.feature_index] < node.threshold:
@@ -89,14 +103,3 @@ class DecisionTreeClassifier:
             else:
                 node = node.right
         return node.predicted_class
-
-if __name__ == "__main__":
-    import sys
-    from sklearn.datasets import load_iris
-
-    dataset = load_iris()
-    X, y = dataset.data, dataset.target  # pylint: disable=no-member
-    clf = DecisionTreeClassifier(max_depth=1)
-    clf.fit(X, y)
-    print(X[:10])
-    print(clf.predict([[5.0, 3.6, 1.3, 0.3]]))

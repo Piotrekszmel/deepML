@@ -196,7 +196,7 @@ class LogisticRegression:
         h = self.sigmoid(z)
         return h
 
-    def gradient(self, X: np.array, y: np.array, h: np.array):
+    def gradient(self, X: np.array, y: np.array, h: np.array): np.array:
         return np.dot(X.T, (h - y)) / y.shape[0]
     
     def updateParameters(self, X: np.array, y: np.array, lr: float, h: np.array) -> None:
