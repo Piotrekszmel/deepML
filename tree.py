@@ -2,7 +2,13 @@ import numpy as np
 
 
 class Node: 
-    def __init__(self, predicted_class):
+    """
+    Node class used in DecisionTreeClassifier
+    
+    @param: predicted_class (int) : predicted class for given node
+    """
+
+    def __init__(self, predicted_class: int) -> None:
         self.predicted_class = predicted_class
         self.feature_index = 0
         self.threshold = 0
@@ -11,13 +17,19 @@ class Node:
 
     
 class DecisionTreeClassifier:
-    def __init__(self, max_depth=None):
+    """
+    Decision Tree Classifier used for classification tasks. 
+
+    @param: max_depth (int) : max depth of tree
+    """
+
+    def __init__(self, max_depth: int = None) -> None:
         self.max_depth = max_depth
 
     def fit(self, X, y):
         self.n_classes = len(set(y))
         self.n_features = X.shape[1]
-        #self.tree = self._grow_tree(X, y)
+        self.tree = self._grow_tree(X, y)
 
     def predict(self, X):
         return [self._predict(inputs) for inputs in X]
@@ -33,7 +45,6 @@ class DecisionTreeClassifier:
             thresholds, classes = zip(*sorted(zip(X[:, idx], y)))
             num_left = [0] * self.n_classes
             num_right = num_parent.copy()
-
             for i in range(1, m):
                 c = classes[i - 1]
                 num_left[c] += 1
@@ -51,17 +62,41 @@ class DecisionTreeClassifier:
                     best_gini = gini
                     best_idx = idx
                     best_thr = (thresholds[i] + thresholds[i - 1]) / 2
+                    
         return best_idx, best_thr
+    
+    def _grow_tree(self, X, y, depth=0):
+        num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes)]
+        predicted_class = np.argmax(num_samples_per_class)
+        node = Node(predicted_class=predicted_class)
+        if depth < self.max_depth:
+            idx, thr = self._best_split(X, y)
+            if idx is not None:
+                indices_left = X[:, idx] < thr
+                X_left, y_left = X[indices_left], y[indices_left]
+                X_right, y_right = X[~indices_left], y[~indices_left]
+                node.feature_index = idx
+                node.threshold = thr
+                node.left = self._grow_tree(X_left, y_left, depth + 1)
+                node.right = self._grow_tree(X_right, y_right, depth + 1)
+        return node
 
+    def _predict(self, inputs):
+        node = self.tree
+        while node.left:
+            if inputs[node.feature_index] < node.threshold:
+                node = node.left
+            else:
+                node = node.right
+        return node.predicted_class
 
+if __name__ == "__main__":
+    import sys
+    from sklearn.datasets import load_iris
 
-
-
-
-
-
-
-
-tree = DecisionTreeClassifier(max_depth=1)
-tree.fit(np.array([[1,2,3], [1,2,3], [1,2,3]]), np.array([0,1,2]))
-tree._best_split(np.array([[1,"blue",7], [1,"green",3], [1,"yellow",3]]), np.array([0,0,2]))
+    dataset = load_iris()
+    X, y = dataset.data, dataset.target  # pylint: disable=no-member
+    clf = DecisionTreeClassifier(max_depth=1)
+    clf.fit(X, y)
+    print(X[:10])
+    print(clf.predict([[5.0, 3.6, 1.3, 0.3]]))
