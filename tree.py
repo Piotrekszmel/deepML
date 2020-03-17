@@ -35,6 +35,10 @@ class DecisionTreeClassifier:
 
     
     @param: max_depth (int) : max depth of tree
+
+    @predict: return predicted labels for given inputs
+    @_best_split: return idx and threshold for the best split
+    @_grow_tree: build tree
     """
 
     def __init__(self, max_depth: int = None) -> None:
