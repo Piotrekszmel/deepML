@@ -118,8 +118,34 @@ class DecisionTreeClassifier:
         return (f"Parameters: \n max_depth: {self.max_depth} \n\n")
 
 
-class RandomForest:
-    def __init__(self, X, y, n_trees, n_features, sample_size, depth=5):
+class RandomForestClassifier:
+    """
+    Random Forest Classifier using DecisionTreeClassifier. 
+
+    # Example: 
+    
+    ```python
+        from sklearn.datasets import load_iris
+
+        dataset = load_iris()
+        X, y = dataset.data, dataset.target  
+
+        forest = RandomForestClassifier(X, y, 10, 2, 50, depth=1)
+        print(forest.predict([[5.0, 3.6, 1.3, 0.3]]))
+
+    
+    @param: X (np.array) : featuers
+    @param: y (np.array) : labels
+    @param: n_trees (np.array) : number of trees in forest
+    @param: n_features (np.array) : numbers of featuers used in decision tree
+    @param: sample_size (np.array) : X and y size for decision tree fit method
+    @param: depth (int) : max depth of decision tree
+
+    @_create_tree: return list of DecisionTreeClassifier objects
+    @_predict: return predictions based on given X
+    """
+    
+    def __init__(self, X: np.array, y: np.array, n_trees: int, n_features: int, sample_size: int, depth: int = 5) -> None:
         self.X = X
         self.y = y
         self.n_trees = n_trees
@@ -134,17 +160,14 @@ class RandomForest:
         feature_idxs = list(np.random.permutation(self.X.shape[1])[:self.n_features])
         return DecisionTreeClassifier(self.depth, self.X[idxs][:, feature_idxs], self.y[idxs])
     
-    def fit(self):
+    def fit(self) -> None:
         for tree in self.trees:
             tree.fit(tree._X, tree._y)
 
-    def predict(self, X):
+    def predict(self, X: list) -> list:
         predictions = []
         for x in X:
             p = [t.predict([x]) for t in self.trees]
             p = [pred for l in p for pred in l]
             predictions.append(np.bincount(p).argmax())
         return predictions
-
-forest = RandomForest(np.array([[1,2,3], [4,5,6], [7,8,9], [10,11,12]]), np.array([0, 1, 0, 2]), 5, 2, 3)
-print(forest.predict([[5.0, 3.6, 1.3, 0.3], [5.0, 3.6, 1.3, 0.3]]))
