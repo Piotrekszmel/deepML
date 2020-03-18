@@ -41,8 +41,14 @@ class DecisionTreeClassifier:
     @_grow_tree: build tree
     """
 
-    def __init__(self, max_depth: int = None) -> None:
+    def __init__(self, max_depth: int = None, X=None, y=None) -> None:
+        """
+        X and y are used in RandomForest class. Do not use it for DecisionTreeClassifier
+        """
+
         self.max_depth = max_depth
+        self._X = X
+        self._y = y
 
     def fit(self, X: np.array, y: np.array) -> None:
         self.n_classes = len(set(y))
@@ -109,7 +115,7 @@ class DecisionTreeClassifier:
         return node.predicted_class
     
     def __repr__(self):
-        return (f"Parameters: \n max_depth: {self.max_depth} ")
+        return (f"Parameters: \n max_depth: {self.max_depth} \n\n")
 
 
 class RandomForest:
@@ -120,16 +126,25 @@ class RandomForest:
         self.n_features = n_features
         self.sample_size = sample_size
         self.depth = depth
-        self.trees = [self._create_tree()]
-    
+        self.trees = [self._create_tree() for i in range(n_trees)]
+        self.fit()
+        
     def _create_tree(self):
         idxs = list(np.random.permutation(len(self.y))[:self.sample_size])
-        print("idxs: ", idxs)
         feature_idxs = list(np.random.permutation(self.X.shape[1])[:self.n_features])
-        print("feature_idxs: ", feature_idxs)
-        print("\n")
-        print(self.X[idxs][:, feature_idxs], "\n\n", self.y[idxs])
-        return DecisionTreeClassifier(self.depth).fit(self.X[idxs][:, feature_idxs], self.y[idxs])
+        return DecisionTreeClassifier(self.depth, self.X[idxs][:, feature_idxs], self.y[idxs])
+    
+    def fit(self):
+        for tree in self.trees:
+            tree.fit(tree._X, tree._y)
 
+    def predict(self, X):
+        predictions = []
+        for x in X:
+            p = [t.predict([x]) for t in self.trees]
+            p = [pred for l in p for pred in l]
+            predictions.append(np.bincount(p).argmax())
+        return predictions
 
-forest = RandomForest(np.array([[1,2,3], [4,5,6], [7,8,9], [10,11,12]]), np.array([0, 1, 0, 2]), 2, 2, 3)
+forest = RandomForest(np.array([[1,2,3], [4,5,6], [7,8,9], [10,11,12]]), np.array([0, 1, 0, 2]), 5, 2, 3)
+print(forest.predict([[5.0, 3.6, 1.3, 0.3], [5.0, 3.6, 1.3, 0.3]]))
