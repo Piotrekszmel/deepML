@@ -107,3 +107,29 @@ class DecisionTreeClassifier:
             else:
                 node = node.right
         return node.predicted_class
+    
+    def __repr__(self):
+        return (f"Parameters: \n max_depth: {self.max_depth} ")
+
+
+class RandomForest:
+    def __init__(self, X, y, n_trees, n_features, sample_size, depth=5):
+        self.X = X
+        self.y = y
+        self.n_trees = n_trees
+        self.n_features = n_features
+        self.sample_size = sample_size
+        self.depth = depth
+        self.trees = [self._create_tree()]
+    
+    def _create_tree(self):
+        idxs = list(np.random.permutation(len(self.y))[:self.sample_size])
+        print("idxs: ", idxs)
+        feature_idxs = list(np.random.permutation(self.X.shape[1])[:self.n_features])
+        print("feature_idxs: ", feature_idxs)
+        print("\n")
+        print(self.X[idxs][:, feature_idxs], "\n\n", self.y[idxs])
+        return DecisionTreeClassifier(self.depth).fit(self.X[idxs][:, feature_idxs], self.y[idxs])
+
+
+forest = RandomForest(np.array([[1,2,3], [4,5,6], [7,8,9], [10,11,12]]), np.array([0, 1, 0, 2]), 2, 2, 3)
