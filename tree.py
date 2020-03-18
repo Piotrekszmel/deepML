@@ -171,3 +171,9 @@ class RandomForestClassifier:
             p = [pred for l in p for pred in l]
             predictions.append(np.bincount(p).argmax())
         return predictions
+    
+    def __repr__(self):
+        return (f"Parameters: \n n_trees: {self.n_trees} \n"
+                f" n_features: {self.n_features} \n"
+                f" sample_size: {self.sample_size} \n"
+                f" depth: {self.depth} \n")
