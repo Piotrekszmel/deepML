@@ -1,19 +1,43 @@
 from math import sqrt, exp, pi
+from typing import Union
+import numpy as np 
 
 
 class GaussianNB:
+    """
+    Gausian Naive Bayes implementation.
+
+    # Example: 
+    
+    ```python
+        from sklearn.datasets import load_iris
+
+        dataset = load_iris()
+        X, y = dataset.data, dataset.target  
+
+        model = GaussianNB()
+
+        summaries = model.fit(X, y)
+        label = model.predict(summaries, [5.7,2.9,4.2,1.3])
+        print(label)
+
+    @seperate_by_class: return dict with labels as keys and Xs associated with label as values
+    @fit return dict with labels as keys and (mean, stdev, len(col)) as values
+    @calculate_class_probabilities: return probability for each label
+    """
+
     def __init__(self):
         pass
 
-    def mean(self, numbers):
+    def mean(self, numbers: Union[list, tuple]) -> float:
         return sum(numbers) / float(len(numbers))
     
-    def stdev(self, numbers):
+    def stdev(self, numbers: Union[list, tuple]) -> float:
         avg = self.mean(numbers)
         variance = sum([(x-avg)**2 for x in numbers]) / float(len(numbers)-1)
         return sqrt(variance)
     
-    def separate_by_class(self, X, y):
+    def separate_by_class(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array]) -> dict:
         separated = dict()
         for xs, label in zip(X, y):
             if label not in separated:
@@ -21,20 +45,20 @@ class GaussianNB:
             separated[label].append(xs)
         return separated
     
-    def summarize_dataset(self, X):
+    def summarize_dataset(self, X: Union[list, tuple, np.array]) -> list:
         summaries = [(self.mean(col), self.stdev(col), len(col)) for col in zip(*X)]
         return summaries
     
-    def summarize_by_class(self, X, y):
+    def fit(self, X: Union[list, tuple, np.array], y: Union[list, tuple, np.array]) -> dict:
         separated = self.separate_by_class(X, y)
         summaries = dict()
         for label, xs in separated.items():
             summaries[label] = self.summarize_dataset(xs)
         return summaries
 
-    def calculate_probability(self, x, mean, stdev):
-	    exponent = exp(-((x-mean)**2 / (2 * stdev**2 )))
-	    return (1 / (sqrt(2 * pi) * stdev)) * exponent
+    def calculate_probability(self, x: float, mean: float, stdev: float) -> float:
+        exponent = exp(-((x-mean)**2 / (2 * stdev**2 )))
+        return (1 / (sqrt(2 * pi) * stdev)) * exponent
 
     def calculate_class_probabilities(self, summaries, X):
         n_rows = sum([summaries[label][0][2] for label in summaries])
@@ -45,30 +69,24 @@ class GaussianNB:
                 mean, stdev, _ = class_summaries[i]
                 probabilities[label] *= self.calculate_probability(X[i], mean, stdev)
         return probabilities
-    
+
+    def predict(self, summaries, X):
+        probabilities = self.calculate_class_probabilities(summaries, X)
+        best_label, best_prob = None, -1
+        for label, probability in probabilities.items():
+            if best_label is None or probability > best_prob:
+                best_prob = probability
+                best_label = label
+        return best_label
 
 
-gnb = GaussianNB()
+from sklearn.datasets import load_iris
 
-l = [[3.393533211,2.331273381],
-	[3.110073483,1.781539638],
-	[1.343808831,3.368360954],
-	[3.582294042,4.67917911],
-	[2.280362439,2.866990263],
-	[7.423436942,4.696522875],
-	[5.745051997,3.533989803],
-	[9.172168622,2.511101045],
-	[7.792783481,3.424088941],
-	[7.939820817,0.791637231]]
-m = [0,0,0,0,0,1,1,1,1,1]
-#summ = gnb.summarize_dataset(l)
+dataset = load_iris()
+X, y = dataset.data, dataset.target  
 
-separated = gnb.summarize_by_class(l, m)
-probabilities = gnb.calculate_class_probabilities(separated, l[0])
-print(probabilities)
+model = GaussianNB()
+summaries = model.fit(X[10:], y[10:])
 
-"""
-print("\n", summ)
-summaries = gnb.summarize_by_class(l, m)
-print("\n", summaries)
-"""
+label = model.predict(summaries, [5.7,2.9,4.2,1.3])
+#print(label)
