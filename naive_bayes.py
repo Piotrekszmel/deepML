@@ -45,7 +45,7 @@ class GaussianNB:
             separated[label].append(xs)
         return separated
     
-    def summarize_dataset(self, X: Union[list, tuple, np.array]) -> list:
+    def summarize_dataset(self, X: Union[list, tuple]) -> list:
         summaries = [(self.mean(col), self.stdev(col), len(col)) for col in zip(*X)]
         return summaries
     
@@ -60,7 +60,7 @@ class GaussianNB:
         exponent = exp(-((x-mean)**2 / (2 * stdev**2 )))
         return (1 / (sqrt(2 * pi) * stdev)) * exponent
 
-    def calculate_class_probabilities(self, summaries, X):
+    def calculate_class_probabilities(self, summaries: dict, X: Union[list, tuple]) -> dict:
         n_rows = sum([summaries[label][0][2] for label in summaries])
         probabilities = dict()
         for label, class_summaries in summaries.items():
@@ -70,7 +70,7 @@ class GaussianNB:
                 probabilities[label] *= self.calculate_probability(X[i], mean, stdev)
         return probabilities
 
-    def predict(self, summaries, X):
+    def predict(self, summaries: dict, X: list) -> int:
         probabilities = self.calculate_class_probabilities(summaries, X)
         best_label, best_prob = None, -1
         for label, probability in probabilities.items():
@@ -78,15 +78,3 @@ class GaussianNB:
                 best_prob = probability
                 best_label = label
         return best_label
-
-
-from sklearn.datasets import load_iris
-
-dataset = load_iris()
-X, y = dataset.data, dataset.target  
-
-model = GaussianNB()
-summaries = model.fit(X[10:], y[10:])
-
-label = model.predict(summaries, [5.7,2.9,4.2,1.3])
-#print(label)
