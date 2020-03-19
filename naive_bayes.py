@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, exp, pi
 
 
 class GaussianNB:
@@ -31,7 +31,23 @@ class GaussianNB:
         for label, xs in separated.items():
             summaries[label] = self.summarize_dataset(xs)
         return summaries
+
+    def calculate_probability(self, x, mean, stdev):
+	    exponent = exp(-((x-mean)**2 / (2 * stdev**2 )))
+	    return (1 / (sqrt(2 * pi) * stdev)) * exponent
+
+    def calculate_class_probabilities(self, summaries, X):
+        n_rows = sum([summaries[label][0][2] for label in summaries])
+        probabilities = dict()
+        for label, class_summaries in summaries.items():
+            probabilities[label] = summaries[label][0][2] / float(n_rows)
+            for i in range(len(class_summaries)):
+                mean, stdev, _ = class_summaries[i]
+                probabilities[label] *= self.calculate_probability(X[i], mean, stdev)
+        return probabilities
     
+
+
 gnb = GaussianNB()
 
 l = [[3.393533211,2.331273381],
@@ -48,8 +64,9 @@ m = [0,0,0,0,0,1,1,1,1,1]
 #summ = gnb.summarize_dataset(l)
 
 separated = gnb.summarize_by_class(l, m)
+probabilities = gnb.calculate_class_probabilities(separated, l[0])
+print(probabilities)
 
-print(separated)
 """
 print("\n", summ)
 summaries = gnb.summarize_by_class(l, m)
