@@ -152,9 +152,9 @@ class LogisticRegression:
         import sklearn
 
         iris = sklearn.datasets.load_iris()
-        X = iris.data[:, :2]
+        X = iris.data
         y = (iris.target != 0) * 1
-
+        print(X[0])
         logistic = LogisticRegression(lr=0.1, verbose=1)
 
         logistic.fit(X, y, 250000)
@@ -196,7 +196,7 @@ class LogisticRegression:
         h = self.sigmoid(z)
         return h
 
-    def gradient(self, X: np.array, y: np.array, h: np.array): np.array:
+    def gradient(self, X: np.array, y: np.array, h: np.array) -> np.array:
         return np.dot(X.T, (h - y)) / y.shape[0]
     
     def updateParameters(self, X: np.array, y: np.array, lr: float, h: np.array) -> None:
