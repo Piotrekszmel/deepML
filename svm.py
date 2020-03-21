@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 
-class SVM(object):
+class SVM:
     """
     Support vector Machine with Linear kernel.
 
@@ -21,14 +21,14 @@ class SVM(object):
     @predict: return predicted value
     """
 
-    def __init__(self,visualization=True):
+    def __init__(self,visualization: bool = True) -> None:
         self.visualization = visualization
         self.colors = {1:'r',-1:'b'}
         if self.visualization:
             self.fig = plt.figure()
             self.ax = self.fig.add_subplot(1,1,1)
     
-    def fit(self,data):
+    def fit(self,data: dict) -> None:
         self.data = data
         opt_dict = {}
         
@@ -69,7 +69,6 @@ class SVM(object):
                                 if not yi*(np.dot(w_t,xi) + b )>=1:
                                     found_option=False
                         if found_option:
-                            print("XD")
                             opt_dict[np.linalg.norm(w_t)] = [w_t,b]
                 
                 if w[0] < 0:
@@ -86,13 +85,13 @@ class SVM(object):
             
             latest_optimum = opt_choice[0][0] + step * 2
     
-    def predict(self,features):
+    def predict(self,features: list) -> tuple:
         classification = np.sign(np.dot(np.array(features),self.w)+self.b)
         if classification!=0 and self.visualization:
             self.ax.scatter(features[0],features[1],s=200,marker='*',c=self.colors[classification])
         return (classification,np.dot(np.array(features),self.w)+self.b)
     
-    def visualize(self):
+    def visualize(self) -> None:
         [[self.ax.scatter(x[0],x[1],s=100,c=self.colors[i]) for x in data_dict[i]] for i in data_dict]
         
         def hyperplane(x,w,b,v):
@@ -113,3 +112,10 @@ class SVM(object):
         db2 = hyperplane(hyp_x_max,self.w,self.b,0)
         self.ax.plot([hyp_x_min,hyp_x_max],[db1,db2],'y--')
         plt.show()
+
+
+data_dict = {-1: np.array([[1,7],[2,8],[3,8]]),1: np.array([[5,1],[6,-1],[7,3]])}
+
+svm = SVM()
+svm.fit(data=data_dict)
+svm.visualize()
