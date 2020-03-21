@@ -9,10 +9,10 @@ class SVM:
      Example: 
     
     ```python
-        data_dict = {-1: np.array([[1,7],[2,8],[3,8]]),1: np.array([[5,1],[6,-1],[7,3]])}
+        data = {-1: np.array([[1,7],[2,8],[3,8]]),1: np.array([[5,1],[6,-1],[7,3]])}
 
         svm = SVM()
-        svm.fit(data=data_dict)
+        svm.fit(data=data)
         svm.visualize()
     
     @param: visualization (bool) : if true create plot 
@@ -112,10 +112,3 @@ class SVM:
         db2 = hyperplane(hyp_x_max,self.w,self.b,0)
         self.ax.plot([hyp_x_min,hyp_x_max],[db1,db2],'y--')
         plt.show()
-
-
-data_dict = {-1: np.array([[1,7],[2,8],[3,8]]),1: np.array([[5,1],[6,-1],[7,3]])}
-
-svm = SVM()
-svm.fit(data=data_dict)
-svm.visualize()
