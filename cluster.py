@@ -36,7 +36,7 @@ class KMeans:
         self.tolerance = tolerance
         self.max_iter = max_iter
     
-    def fit(self, data):
+    def fit(self, data: np.array) -> None:
         self.centroids = {}
 
         for i in range(self.k):
@@ -63,17 +63,17 @@ class KMeans:
             for c in self.centroids:
                 prev_centroid = prev_centroids[c]
                 current_centroid = self.centroids[c]
+                print(np.sum((current_centroid - prev_centroid) / prev_centroid * 100.0))
                 if np.sum((current_centroid - prev_centroid) / prev_centroid * 100.0) > self.tolerance:
                     print(np.sum((current_centroid - prev_centroid) / prev_centroid * 100.0))
                     optimized = False  
 
-    def predict(self, data):
+    def predict(self, data: np.array) -> int:
         distances = [np.linalg.norm(data - self.centroids[centroid]) for centroid in self.centroids]
         classification = distances.index(min(distances))
-        print("\n classification: ", classification)
         return classification
     
-    def visualize(self, centroids, classifications, unknows=None):
+    def visualize(self, centroids: dict, classifications: dict, unknows: np.array = None) -> None:
         for centroid in centroids:
             plt.scatter(centroids[centroid][0], centroids[centroid][1],
             marker="o", color="k", s=150, linewidths=5)
